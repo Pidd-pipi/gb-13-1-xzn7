@@ -5,15 +5,24 @@ import { Review } from './Review';
 import { Favorite } from './Favorite';
 import { PurchaseRequest } from './PurchaseRequest';
 import { BrowsingHistory } from './BrowsingHistory';
+import { ExchangeRequest } from './ExchangeRequest';
 
-export const entities = [User, Book, Message, Review, Favorite, PurchaseRequest, BrowsingHistory];
+export const entities = [User, Book, Message, Review, Favorite, PurchaseRequest, BrowsingHistory, ExchangeRequest];
 
 export * from './User';
 export { Book };
-export type { BookCondition, BookStatus, TradeMethod, SubjectCategory as BookSubjectCategory } from './Book';
+export type {
+  BookCondition,
+  BookStatus,
+  TradeMethod,
+  TradeType,
+  SubjectCategory as BookSubjectCategory,
+} from './Book';
 export * from './Message';
 export * from './Review';
 export * from './Favorite';
 export { PurchaseRequest };
 export type { RequestStatus, SubjectCategory as PurchaseRequestSubjectCategory } from './PurchaseRequest';
 export * from './BrowsingHistory';
+export { ExchangeRequest };
+export type { ExchangeStatus } from './ExchangeRequest';

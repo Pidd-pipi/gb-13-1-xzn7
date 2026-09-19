@@ -13,6 +13,7 @@
         <div class="tags">
           <span class="condition-tag">{{ conditionMap[book.condition] }}</span>
           <span class="category-tag">{{ categoryMap[book.category] }}</span>
+          <span v-if="book.tradeType === 'exchange'" class="exchange-tag">支持换书</span>
         </div>
       </div>
       <div class="price-row">
@@ -86,6 +87,15 @@ defineEmits<{
 .category-tag {
   background: #f6ffed;
   color: #52c41a;
+}
+.exchange-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  margin-right: 6px;
+  background: #fff1f0;
+  color: #ff4d4f;
 }
 .price-row {
   margin-top: 8px;

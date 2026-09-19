@@ -14,7 +14,9 @@ export interface User {
 export type BookCondition = 'new' | 'like_new' | 'good' | 'fair';
 export type BookStatus = 'available' | 'reserved' | 'sold';
 export type TradeMethod = 'meetup' | 'shipping';
+export type TradeType = 'sale' | 'exchange';
 export type SubjectCategory = 'science' | 'humanities' | 'business' | 'arts' | 'other';
+export type ExchangeStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
 
 export interface Book {
   id: string;
@@ -26,6 +28,8 @@ export interface Book {
   condition: BookCondition;
   images: string[];
   tradeMethod: TradeMethod;
+  tradeType: TradeType;
+  wantedBook?: string | null;
   campus: string;
   category: SubjectCategory;
   description?: string;
@@ -34,6 +38,27 @@ export interface Book {
   seller?: User;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ExchangeRequest {
+  id: string;
+  targetBookId: string;
+  offeredBookId: string;
+  buyerId: string;
+  sellerId: string;
+  status: ExchangeStatus;
+  message?: string | null;
+  targetBook?: Book;
+  offeredBook?: Book;
+  buyer?: User;
+  seller?: User;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BookExchangeRequests {
+  incoming: ExchangeRequest[];
+  outgoing: ExchangeRequest[];
 }
 
 export interface Message {
@@ -97,6 +122,18 @@ export const statusMap: Record<BookStatus, string> = {
 export const tradeMethodMap: Record<TradeMethod, string> = {
   meetup: '面交',
   shipping: '邮寄',
+};
+
+export const tradeTypeMap: Record<TradeType, string> = {
+  sale: '仅出售',
+  exchange: '支持换书',
+};
+
+export const exchangeStatusMap: Record<ExchangeStatus, string> = {
+  pending: '待处理',
+  accepted: '已接受',
+  rejected: '已拒绝',
+  cancelled: '已取消',
 };
 
 export const categoryMap: Record<SubjectCategory, string> = {

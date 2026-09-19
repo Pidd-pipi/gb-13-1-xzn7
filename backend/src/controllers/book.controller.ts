@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { In, ILike, FindOperator, Between, LessThanOrEqual, MoreThanOrEqual } from 'typeorm';
 import { AppDataSource } from '../config/database';
-import { Book, BookStatus, SubjectCategory, BookCondition } from '../entities/Book';
+import { Book, BookStatus, SubjectCategory, BookCondition, TradeType } from '../entities/Book';
 import { User } from '../entities/User';
 import { Favorite } from '../entities/Favorite';
 import { BrowsingHistory } from '../entities/BrowsingHistory';
+import { ExchangeRequest, ExchangeStatus } from '../entities/ExchangeRequest';
 import { AuthenticatedRequest } from '../middlewares/auth.middleware';
 import { minioService } from '../services/minio.service';
 
@@ -17,6 +18,8 @@ export const createBook = async (req: AuthenticatedRequest, res: Response) => {
     price,
     condition,
     tradeMethod,
+    tradeType,
+    wantedBook,
     campus,
     category,
     description,
@@ -28,6 +31,12 @@ export const createBook = async (req: AuthenticatedRequest, res: Response) => {
   }
   if (files.length > 5) {
     return res.status(400).json({ message: '最多上传5张图片' });
+  }
+
+  const finalTradeType: TradeType = tradeType === 'exchange' ? 'exchange' : 'sale';
+  const finalWantedBook = typeof wantedBook === 'string' ? wantedBook.trim() : '';
+  if (finalTradeType === 'exchange' && !finalWantedBook) {
+    return res.status(400).json({ message: '支持换书时请填写想要的书' });
   }
 
   try {
@@ -48,6 +57,8 @@ export const createBook = async (req: AuthenticatedRequest, res: Response) => {
       condition,
       images: imageUrls,
       tradeMethod,
+      tradeType: finalTradeType,
+      wantedBook: finalTradeType === 'exchange' ? finalWantedBook.slice(0, 255) : null,
       campus,
       category,
       description,
@@ -167,6 +178,10 @@ export const updateBookStatus = async (req: AuthenticatedRequest, res: Response)
   const { id } = req.params;
   const { status } = req.body;
 
+  if (!['available', 'reserved', 'sold'].includes(status)) {
+    return res.status(400).json({ message: '无效的书籍状态' });
+  }
+
   const bookRepository = AppDataSource.getRepository(Book);
   const book = await bookRepository.findOne({ where: { id } });
 
@@ -176,6 +191,20 @@ export const updateBookStatus = async (req: AuthenticatedRequest, res: Response)
 
   if (book.sellerId !== req.userId) {
     return res.status(403).json({ message: '无权限操作' });
+  }
+
+  // 已被换书申请预约的书不能手动改状态，避免预约与换书状态不一致
+  if (book.status === 'reserved' && status !== 'reserved') {
+    const exchangeRepository = AppDataSource.getRepository(ExchangeRequest);
+    const tiedRequest = await exchangeRepository.findOne({
+      where: [
+        { targetBookId: book.id, status: 'accepted' },
+        { offeredBookId: book.id, status: 'accepted' },
+      ],
+    });
+    if (tiedRequest) {
+      return res.status(400).json({ message: '该书在换书预约中，请先拒绝或取消对应的换书申请' });
+    }
   }
 
   book.status = status;
@@ -196,6 +225,18 @@ export const deleteBook = async (req: AuthenticatedRequest, res: Response) => {
 
   if (book.sellerId !== req.userId) {
     return res.status(403).json({ message: '无权限操作' });
+  }
+
+  const exchangeRepository = AppDataSource.getRepository(ExchangeRequest);
+  const activeStatuses: ExchangeStatus[] = ['pending', 'accepted'];
+  const activeRequest = await exchangeRepository.findOne({
+    where: [
+      { targetBookId: book.id, status: In(activeStatuses) },
+      { offeredBookId: book.id, status: In(activeStatuses) },
+    ],
+  });
+  if (activeRequest) {
+    return res.status(400).json({ message: '该书存在待处理或已接受的换书申请，无法删除' });
   }
 
   await bookRepository.delete({ id });

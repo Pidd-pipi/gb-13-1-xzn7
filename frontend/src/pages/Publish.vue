@@ -61,6 +61,25 @@
             </van-radio-group>
           </template>
         </van-field>
+
+        <van-field name="tradeType" label="换书" :rules="[{ required: true, message: '请选择是否支持换书' }]">
+          <template #input>
+            <van-radio-group v-model="form.tradeType" direction="horizontal">
+              <van-radio name="sale">仅出售</van-radio>
+              <van-radio name="exchange">支持换书</van-radio>
+            </van-radio-group>
+          </template>
+        </van-field>
+
+        <van-field
+          v-if="form.tradeType === 'exchange'"
+          v-model="form.wantedBook"
+          name="wantedBook"
+          label="想要的书"
+          placeholder="请填写想换到的书名"
+          maxlength="255"
+          :rules="[{ required: true, message: '支持换书时请填写想要的书' }]"
+        />
         
         <van-field name="campus" label="校区" placeholder="请输入校区" :rules="[{ required: true, message: '请输入校区' }]">
           <template #input>
@@ -136,6 +155,8 @@ const form = reactive({
   price: 0,
   condition: '',
   tradeMethod: '',
+  tradeType: 'sale',
+  wantedBook: '',
   campus: '',
   category: '',
   description: '',
@@ -179,6 +200,8 @@ const onSubmit = async () => {
       price: form.price,
       condition: form.condition as any,
       tradeMethod: form.tradeMethod as any,
+      tradeType: form.tradeType as any,
+      wantedBook: form.tradeType === 'exchange' ? form.wantedBook.trim() : undefined,
       campus: form.campus,
       category: form.category as any,
       description: form.description || undefined,

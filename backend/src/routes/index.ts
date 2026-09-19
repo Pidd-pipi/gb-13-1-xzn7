@@ -21,6 +21,13 @@ import {
 } from '../controllers/purchaseRequest.controller';
 import { sendMessage, getConversations, getMessages, getUnreadCount } from '../controllers/message.controller';
 import { createReview, getUserReviews as getUserReviewsPublic } from '../controllers/review.controller';
+import {
+  createExchangeRequest,
+  acceptExchangeRequest,
+  rejectExchangeRequest,
+  cancelExchangeRequest,
+  getBookExchangeRequests,
+} from '../controllers/exchange.controller';
 
 const router = Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -39,8 +46,14 @@ router.get('/books/:id', getBookById);
 router.post('/books', authMiddleware, upload.array('images', 5), createBook);
 router.put('/books/:id/status', authMiddleware, updateBookStatus);
 router.delete('/books/:id', authMiddleware, deleteBook);
+router.get('/books/:bookId/exchange-requests', authMiddleware, getBookExchangeRequests);
+router.post('/books/:bookId/exchange-requests', authMiddleware, createExchangeRequest);
 router.get('/my/books', authMiddleware, getMyBooks);
 router.get('/recommend/books', authMiddleware, getRecommendBooks);
+
+router.post('/exchange-requests/:id/accept', authMiddleware, acceptExchangeRequest);
+router.post('/exchange-requests/:id/reject', authMiddleware, rejectExchangeRequest);
+router.post('/exchange-requests/:id/cancel', authMiddleware, cancelExchangeRequest);
 
 router.post('/favorites/toggle', authMiddleware, toggleFavorite);
 router.get('/favorites', authMiddleware, getFavorites);

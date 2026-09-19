@@ -6,6 +6,7 @@ import { Message } from './Message';
 export type BookCondition = 'new' | 'like_new' | 'good' | 'fair';
 export type BookStatus = 'available' | 'reserved' | 'sold';
 export type TradeMethod = 'meetup' | 'shipping';
+export type TradeType = 'sale' | 'exchange';
 export type SubjectCategory = 'science' | 'humanities' | 'business' | 'arts' | 'other';
 
 @Entity('books')
@@ -40,6 +41,13 @@ export class Book {
 
   @Column({ type: 'enum', enum: ['meetup', 'shipping'] })
   tradeMethod: TradeMethod;
+
+  @Column({ type: 'enum', enum: ['sale', 'exchange'], default: 'sale' })
+  @Index('idx_book_trade_type')
+  tradeType: TradeType;
+
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  wantedBook: string | null;
 
   @Column()
   campus: string;

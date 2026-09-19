@@ -1,5 +1,5 @@
 import request from './request';
-import type { Book, BookCondition, BookStatus, SubjectCategory, TradeMethod } from '@/types';
+import type { Book, BookCondition, BookStatus, SubjectCategory, TradeMethod, TradeType } from '@/types';
 
 export interface BookListParams {
   keyword?: string;
@@ -39,6 +39,8 @@ export const createBook = (data: {
   price: number;
   condition: BookCondition;
   tradeMethod: TradeMethod;
+  tradeType: TradeType;
+  wantedBook?: string;
   campus: string;
   category: SubjectCategory;
   description?: string;
