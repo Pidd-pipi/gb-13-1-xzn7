@@ -55,6 +55,14 @@ export class Book {
   @Index('idx_book_status')
   status: BookStatus;
 
+  // true = 仅出售；false = 支持换书
+  @Column({ default: true })
+  saleOnly: boolean;
+
+  // 支持换书时，卖家想换到的书
+  @Column({ type: 'varchar', length: 255, nullable: true })
+  wantedBookTitle: string | null;
+
   @ManyToOne(() => User, user => user.books)
   seller: User;
 

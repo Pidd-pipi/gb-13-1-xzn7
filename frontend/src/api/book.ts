@@ -42,6 +42,8 @@ export const createBook = (data: {
   campus: string;
   category: SubjectCategory;
   description?: string;
+  saleOnly: boolean;
+  wantedBookTitle?: string;
   images: File[];
 }) => {
   const formData = new FormData();

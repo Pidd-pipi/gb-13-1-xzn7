@@ -9,7 +9,11 @@
         <van-image :src="book.images[0]" width="80" height="80" fit="cover" />
         <div class="book-info">
           <div class="book-title">{{ book.title }}</div>
-          <div class="book-price">¥{{ book.price }}</div>
+          <div class="book-price">
+            ¥{{ book.price }}
+            <van-tag v-if="book.saleOnly === false" plain type="primary" size="medium">支持换书</van-tag>
+          </div>
+          <div v-if="book.saleOnly === false" class="book-wanted">想换：{{ book.wantedBookTitle }}</div>
           <div class="book-status" :class="`status-${book.status}`">{{ statusMap[book.status] }}</div>
         </div>
         <van-dropdown-menu class="book-actions">
@@ -121,6 +125,14 @@ onMounted(fetchBooks);
   font-size: 16px;
   font-weight: bold;
   color: #ff4d4f;
+  margin-top: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.book-wanted {
+  font-size: 12px;
+  color: #1989fa;
   margin-top: 4px;
 }
 .book-status {

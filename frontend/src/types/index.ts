@@ -30,10 +30,32 @@ export interface Book {
   category: SubjectCategory;
   description?: string;
   status: BookStatus;
+  saleOnly?: boolean;
+  wantedBookTitle?: string | null;
   sellerId: string;
   seller?: User;
   createdAt: string;
   updatedAt: string;
+}
+
+export type ExchangeStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
+
+export interface ExchangeRequest {
+  id: string;
+  targetBookId: string;
+  offeredBookId: string;
+  sellerId: string;
+  buyerId: string;
+  status: ExchangeStatus;
+  buyer?: Pick<User, 'id' | 'name' | 'avatarUrl' | 'department' | 'contactInfo' | 'positiveRatingRate' | 'totalReviews'> | null;
+  offeredBook?: Book | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BookExchangeInfo {
+  role: 'seller' | 'buyer';
+  requests: ExchangeRequest[];
 }
 
 export interface Message {
@@ -105,4 +127,11 @@ export const categoryMap: Record<SubjectCategory, string> = {
   business: '经管',
   arts: '艺术',
   other: '其他',
+};
+
+export const exchangeStatusMap: Record<ExchangeStatus, string> = {
+  pending: '待处理',
+  accepted: '已接受',
+  rejected: '已拒绝',
+  cancelled: '已取消',
 };

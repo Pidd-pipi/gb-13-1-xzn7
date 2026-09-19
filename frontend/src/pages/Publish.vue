@@ -95,6 +95,23 @@
           placeholder="请输入书籍描述"
           rows="3"
         />
+
+        <van-field name="saleType" label="出售方式" :rules="[{ required: true, message: '请选择出售方式' }]">
+          <template #input>
+            <van-radio-group v-model="saleType" direction="horizontal">
+              <van-radio name="sale">仅出售</van-radio>
+              <van-radio name="exchange">支持换书</van-radio>
+            </van-radio-group>
+          </template>
+        </van-field>
+        <van-field
+          v-if="saleType === 'exchange'"
+          v-model="form.wantedBookTitle"
+          name="wantedBookTitle"
+          label="想换的书"
+          placeholder="请填写想换到的书名"
+          :rules="[{ required: true, message: '支持换书时请填写想要的书' }]"
+        />
       </van-cell-group>
       
       <div class="submit-actions">
@@ -139,7 +156,10 @@ const form = reactive({
   campus: '',
   category: '',
   description: '',
+  wantedBookTitle: '',
 });
+
+const saleType = ref<'sale' | 'exchange'>('sale');
 
 const campuses = [
   { text: '主校区', value: '主校区' },
@@ -171,6 +191,12 @@ const onSubmit = async () => {
   
   loading.value = true;
   try {
+    const saleOnly = saleType.value === 'sale';
+    if (!saleOnly && !form.wantedBookTitle.trim()) {
+      showToast('支持换书时请填写想要的书');
+      loading.value = false;
+      return;
+    }
     await createBook({
       title: form.title,
       author: form.author,
@@ -182,6 +208,8 @@ const onSubmit = async () => {
       campus: form.campus,
       category: form.category as any,
       description: form.description || undefined,
+      saleOnly,
+      wantedBookTitle: saleOnly ? undefined : form.wantedBookTitle.trim(),
       images: files,
     });
     showToast('发布成功');

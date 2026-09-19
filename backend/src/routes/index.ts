@@ -12,6 +12,13 @@ import {
   getMyBooks,
   getRecommendBooks,
 } from '../controllers/book.controller';
+import {
+  createExchangeRequest,
+  acceptExchangeRequest,
+  rejectExchangeRequest,
+  cancelExchangeRequest,
+  getBookExchangeInfo,
+} from '../controllers/exchange.controller';
 import { toggleFavorite, getFavorites, getBrowsingHistory } from '../controllers/favorite.controller';
 import {
   createPurchaseRequest,
@@ -41,6 +48,13 @@ router.put('/books/:id/status', authMiddleware, updateBookStatus);
 router.delete('/books/:id', authMiddleware, deleteBook);
 router.get('/my/books', authMiddleware, getMyBooks);
 router.get('/recommend/books', authMiddleware, getRecommendBooks);
+
+// 换书闭环
+router.post('/books/:id/exchanges', authMiddleware, createExchangeRequest);
+router.get('/books/:id/exchanges', authMiddleware, getBookExchangeInfo);
+router.put('/exchanges/:id/accept', authMiddleware, acceptExchangeRequest);
+router.put('/exchanges/:id/reject', authMiddleware, rejectExchangeRequest);
+router.put('/exchanges/:id/cancel', authMiddleware, cancelExchangeRequest);
 
 router.post('/favorites/toggle', authMiddleware, toggleFavorite);
 router.get('/favorites', authMiddleware, getFavorites);

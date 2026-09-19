@@ -20,6 +20,8 @@ export const createBook = async (req: AuthenticatedRequest, res: Response) => {
     campus,
     category,
     description,
+    saleOnly,
+    wantedBookTitle,
   } = req.body;
 
   const files = req.files as Express.Multer.File[];
@@ -28,6 +30,13 @@ export const createBook = async (req: AuthenticatedRequest, res: Response) => {
   }
   if (files.length > 5) {
     return res.status(400).json({ message: '最多上传5张图片' });
+  }
+
+  // saleOnly 缺省视为仅出售；支持换书时必须填写想要的书
+  const isSaleOnly = saleOnly === undefined || saleOnly === null ? true : saleOnly === 'false' || saleOnly === false;
+  const wanted = typeof wantedBookTitle === 'string' ? wantedBookTitle.trim() : wantedBookTitle;
+  if (!isSaleOnly && (!wanted || wanted.length === 0)) {
+    return res.status(400).json({ message: '支持换书时请填写想要的书' });
   }
 
   try {
@@ -53,6 +62,8 @@ export const createBook = async (req: AuthenticatedRequest, res: Response) => {
       description,
       sellerId: req.userId!,
       status: 'available' as BookStatus,
+      saleOnly: isSaleOnly,
+      wantedBookTitle: isSaleOnly ? null : wanted,
     });
 
     await bookRepository.save(book);
